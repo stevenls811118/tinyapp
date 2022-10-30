@@ -7,6 +7,8 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+app.set('view engine', 'ejs');
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}.`);
 });
