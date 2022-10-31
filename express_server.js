@@ -6,9 +6,14 @@ const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxys";
 
 let generateRandomString = () => {
-
+  let result = '';
+  for(let i = 0; i < 6; i++) {
+    result += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return result;
 };
 
 app.use(express.urlencoded({ extended: true }));
@@ -49,6 +54,13 @@ app.get('/urls/:id', (req, res) => {
 
 app.post("/urls", (req, res) => {
   console.log(req.body); // Log the POST request body to the console
-  res.send("Ok"); // Respond with 'Ok' (we will replace this)
+  let shortURl = generateRandomString();
+  urlDatabase[shortURl] = req.body.longURL;
+  res.redirect(`/urls/${shortURl}`);
+});
+
+app.get('/u/:id', (req, res) => {
+  let longURL = urlDatabase[req.params.id];
+  res.redirect(longURL);
 });
 
