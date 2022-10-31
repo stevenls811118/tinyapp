@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/stevenls811118/tinyapp#readme",
   "dependencies": {
+    "bootstrap": "^5.2.2",
     "ejs": "^3.1.8",
     "express": "^4.18.2"
   },
