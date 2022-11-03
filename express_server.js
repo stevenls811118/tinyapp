@@ -10,15 +10,28 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-const users = {
+const users = {};
 
-}
 let generateRandomString = () => {
   let result = '';
   for(let i = 0; i < 6; i++) {
     result += chars[Math.floor(Math.random() * chars.length)];
   }
   return result;
+};
+
+let getUserByEmail = (str) => {
+  for(let i of Object.values(users)) {
+    if (i.email === str) {
+      console.log('email is already exist');
+      return false;
+    }
+  }
+  if (str === '') {
+    console.log("please enter email");
+    return false;
+  }
+  return true;
 };
 
 const app = express();
@@ -112,15 +125,19 @@ app.get("/register", (req, res) => {
 
 app.post("/register", (req, res) => {
   console.log(req.body);
-  let id = generateRandomString();
-  let email = req.body.email;
-  let password = req.body.password;
-  users[id] = {
-    "id": id,
-    "email": email,
-    "password": password
-  };
-  res.cookie('user_id', id);
-  console.log(users);
-  res.redirect('/urls');
+  if (!getUserByEmail(req.body.email)) {
+    res.redirect(400,'/register');
+  } else {
+    let id = generateRandomString();
+    let email = req.body.email;
+    let password = req.body.password;
+    users[id] = {
+      "id": id,
+      "email": email,
+      "password": password
+    };
+    res.cookie('user_id', id);
+    console.log(users);
+    res.redirect('/urls');
+  }
 });
