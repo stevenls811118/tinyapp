@@ -16,8 +16,8 @@
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-        <% if (username) { %>
-          <a style="margin-left:28px" class="form-inline">Hi, <%= username %></a>
+        <% if (user_id) { %>
+          <a style="margin-left:28px" class="form-inline">Hi, <%= users[user_id].email %></a>
           <form method="POST" action="/logout" class="form-inline" >
             <button type="submit" style="margin-left:8px"><p6 style="color: #0265fa">Logout</p6></button>
           </form>
