@@ -21,10 +21,12 @@
           <form method="POST" action="/logout" class="form-inline" >
             <button type="submit" style="margin-left:8px"><p6 style="color: #0265fa">Logout</p6></button>
           </form>
-        <% } else { %>   
-          <form method="POST" action="/login" class="form-inline">
-            <input type="text" name="username" placeholder="Username" style="margin-left:28px">
+        <% } else { %> 
+          <form method="GET" action="/login" class="form-inline">
             <button type="submit" style="margin-left:8px"><p6 style="color: #0265fa">Login</p6></button>
+          </form>  
+          <form method="GET" action="/register" class="form-inline">
+            <button type="submit" style="margin-left:8px"><p6 style="color: #0265fa">Register</p6></button>
           </form>
         <% } %>   
       </div>

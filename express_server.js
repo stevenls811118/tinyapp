@@ -76,7 +76,7 @@ app.get('/urls/new', (req, res) => {
 
 app.get('/urls/:id', (req, res) => {
   let user_id = req.cookies.user_id;
-  const templateVars = { 
+  const templateVars = {
     id: req.params.id, 
     longURL: urlDatabase[req.params.id],
     users: users,
@@ -108,10 +108,16 @@ app.post('/urls/:id', (req, res) => {
 });
 
 app.post('/login', (req, res) => { 
-  console.log(req.body.username);
-  const username = req.body.username;
-  res.cookie('username', username);
-  res.redirect('/urls');
+  console.log(req.body);
+  const email = req.body.email;
+  const pass = req.body.password;
+  for(let i of Object.values(users)) {
+    if (i.email === email && i.password === pass) {
+      res.cookie('user_id', i.id);
+      res.redirect('/urls')
+    }
+  }   
+  res.redirect('/login');
 });
 
 app.post("/logout", (req, res) => {
@@ -140,4 +146,8 @@ app.post("/register", (req, res) => {
     console.log(users);
     res.redirect('/urls');
   }
+});
+
+app.get('/login', (req, res) => {
+  res.render('login');
 });
