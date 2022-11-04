@@ -36,6 +36,14 @@ let getUserByEmail = (str) => {
   return true;
 };
 
+let checkForLogin = (email, pass) => {
+  for (let i of Object.values(users)) {
+    if (i.email === email && i.password === pass) {
+      return i.id;
+    }
+    return false;
+  }
+}
 const app = express();
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({extended: true}));
@@ -119,12 +127,10 @@ app.post('/login', (req, res) => {
   console.log('This is req.body: ', req.body);
   const email = req.body.email;
   const pass = req.body.password;
-  for (let i of Object.values(users)) {
-    if (i.email === email && i.password === pass) {
-      res.cookie('userID', i.id);
-      return res.redirect('/urls');
-    }
-  }
+  if(checkForLogin(email, pass)) {
+    res.cookie('userID', checkForLogin(email, pass));
+    return res.redirect('/urls');
+  };
   res.redirect(403, '/login');
 });
 
