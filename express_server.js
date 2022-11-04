@@ -68,6 +68,9 @@ app.get('/urls', (req, res) => {
 });
 
 app.get('/urls/new', (req, res) => {
+  if(!req.cookies.userID) {
+    return res.redirect('/login');
+  };
   let userID = req.cookies.userID;
   const templateVars = {
     users: users,
@@ -88,6 +91,9 @@ app.get('/urls/:id', (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
+  if(!req.cookies.userID) {
+    return res.send('Login first!');
+  }
   console.log(req.body);
   let shortURl = generateRandomString();
   urlDatabase[shortURl] = req.body.longURL;
@@ -128,6 +134,9 @@ app.post("/logout", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
+  if(req.cookies.userID) {
+    return res.redirect('/urls');
+  };
   let userID = req.cookies.userID;
   let templateVars = {
     urls: urlDatabase,
@@ -157,6 +166,9 @@ app.post("/register", (req, res) => {
 });
 
 app.get('/login', (req, res) => {
+  if(req.cookies.userID) {
+    return res.redirect('/urls');
+  };
   let userID = req.cookies.userID;
   let templateVars = {
     urls: urlDatabase,
