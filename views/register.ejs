@@ -1,21 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-</head>
-<body>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
 
-  <h1>Please register</h1>
-  <form method="POST" action="/register">
-    <label for="email">E-mail: </label>
-    <input id="email" type="email" name="email"/>
-    <label for="password">Password: </label>
-    <input id="password" type="password" name="password"/>
-    <input id="button" type="submit"/>
-  </form>
- 
-</body>
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+      integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
+      crossorigin="anonymous"
+    />
+    <title>TinyApp</title>
+  </head>
+  <body>
+    <%- include('partials/_header.ejs') %>
+    <main style="margin: 1em;">
+      <h1>Create Account</h1>
+      <form method="POST" action="/register">
+        <label for="email">Email address: </label>
+        <br>
+        <input id="email" type="email" name="email" placeholder="Enter email" style="width: 300px"/>
+        <br>
+        <label for="password" style="margin-top: 7px">Password: </label>
+        <br>
+        <input id="password" type="password" name="password" placeholder="Password" style="width: 300px"/>
+        <br>
+        <br>
+        <button type="submit" class="btn btn-primary">Register</button>
+      </form>
+    </main>
+  </body>
 </html>

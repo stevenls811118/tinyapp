@@ -16,18 +16,16 @@
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-        <% if (user_id) { %>
-          <a style="margin-left:28px" class="form-inline">Hi, <%= users[user_id].email %></a>
+        <% if (userID) { %>
+          <a style="position: absolute;right: 150px;color: blue;" class="nav-item nav-link">Logged In As: <%= users[userID].email %></a>
           <form method="POST" action="/logout" class="form-inline" >
-            <button type="submit" style="margin-left:8px"><p6 style="color: #0265fa">Logout</p6></button>
+            <button type="submit" style="position: absolute;right: 70px;margin-left:15px" class="btn btn-primary">Logout</button>
           </form>
-        <% } else { %> 
-          <form method="GET" action="/login" class="form-inline">
-            <button type="submit" style="margin-left:8px"><p6 style="color: #0265fa">Login</p6></button>
-          </form>  
-          <form method="GET" action="/register" class="form-inline">
-            <button type="submit" style="margin-left:8px"><p6 style="color: #0265fa">Register</p6></button>
-          </form>
+        <% } else { %>
+
+            <a class="nav-item nav-link" style="position: absolute;right: 50px;margin-right: 40px" href="/login">Login</a>
+            <a class="nav-item nav-link" style="position: absolute;right: 20px" href="/register">Register</a>
+          
         <% } %>   
       </div>
     </div>

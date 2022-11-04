@@ -12,16 +12,18 @@ const urlDatabase = {
 
 const users = {};
 
+// generate 6 digits string for userID and shortURL
 let generateRandomString = () => {
   let result = '';
-  for(let i = 0; i < 6; i++) {
+  for (let i = 0; i < 6; i++) {
     result += chars[Math.floor(Math.random() * chars.length)];
   }
   return result;
 };
 
+// check for the registration has email enter and it is not exist email
 let getUserByEmail = (str) => {
-  for(let i of Object.values(users)) {
+  for (let i of Object.values(users)) {
     if (i.email === str) {
       console.log('email is already exist');
       return false;
@@ -40,7 +42,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.set('view engine', 'ejs');
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}.`);
+  console.log(`Tinyapp is listening on port ${port}.`);
 });
 
 app.get('/', (req, res) => {
@@ -56,37 +58,37 @@ app.get('/hello', (req, res) => {
 });
 
 app.get('/urls', (req, res) => {
-  let user_id = req.cookies.user_id;
+  let userID = req.cookies.userID;
   let templateVars = {
     urls: urlDatabase,
     users: users,
-    user_id: user_id
+    userID: userID
   };
   res.render('urls_index', templateVars);
 });
 
 app.get('/urls/new', (req, res) => {
-  let user_id = req.cookies.user_id;
-  const templateVars = { 
+  let userID = req.cookies.userID;
+  const templateVars = {
     users: users,
-    user_id: user_id
+    userID: userID
   };
   res.render('urls_new', templateVars);
 });
 
 app.get('/urls/:id', (req, res) => {
-  let user_id = req.cookies.user_id;
+  let userID = req.cookies.userID;
   const templateVars = {
-    id: req.params.id, 
+    id: req.params.id,
     longURL: urlDatabase[req.params.id],
     users: users,
-    user_id: user_id
+    userID: userID
   };
   res.render('urls_show', templateVars);
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body); // Log the POST request body to the console
+  console.log(req.body);
   let shortURl = generateRandomString();
   urlDatabase[shortURl] = req.body.longURL;
   res.redirect(`/urls/${shortURl}`);
@@ -97,36 +99,42 @@ app.get('/u/:id', (req, res) => {
   res.redirect(longURL);
 });
 
-app.post('/urls/:id/delete', (req, res) => { 
+app.post('/urls/:id/delete', (req, res) => {
   delete urlDatabase[req.params.id];
   res.redirect('/urls');
 });
 
-app.post('/urls/:id', (req, res) => { 
+app.post('/urls/:id', (req, res) => {
   urlDatabase[req.params.id] = req.body.longURL;
   res.redirect('/urls');
 });
 
-app.post('/login', (req, res) => { 
-  console.log(req.body);
+app.post('/login', (req, res) => {
+  console.log('This is req.body: ', req.body);
   const email = req.body.email;
   const pass = req.body.password;
-  for(let i of Object.values(users)) {
+  for (let i of Object.values(users)) {
     if (i.email === email && i.password === pass) {
-      res.cookie('user_id', i.id);
-      res.redirect('/urls')
+      res.cookie('userID', i.id);
+      return res.redirect('/urls');
     }
-  }   
-  res.redirect('/login');
+  }
+  res.redirect(403, '/login');
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie('user_id');
-  res.redirect(`/urls`);
+  res.clearCookie('userID');
+  res.redirect(`/login`);
 });
 
 app.get("/register", (req, res) => {
-  res.render('register');
+  let userID = req.cookies.userID;
+  let templateVars = {
+    urls: urlDatabase,
+    users: users,
+    userID: userID
+  };
+  res.render('register', templateVars);
 });
 
 app.post("/register", (req, res) => {
@@ -142,12 +150,18 @@ app.post("/register", (req, res) => {
       "email": email,
       "password": password
     };
-    res.cookie('user_id', id);
+    res.cookie('userID', id);
     console.log(users);
     res.redirect('/urls');
   }
 });
 
 app.get('/login', (req, res) => {
-  res.render('login');
+  let userID = req.cookies.userID;
+  let templateVars = {
+    urls: urlDatabase,
+    users: users,
+    userID: userID
+  };
+  res.render('login', templateVars);
 });
