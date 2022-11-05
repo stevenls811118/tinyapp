@@ -17,21 +17,21 @@ const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxys";
 const urlDatabase = {
   b6UTxQ: {
     longURL: "https://www.tsn.ca",
-    userID: "gvh5YR",
+    userID: "DdsdWk",
   },
   i3BoGr: {
     longURL: "https://www.google.ca",
-    userID: "gvh5Ys",
+    userID: "DdsdWk",
   },
   aX483J: {
     longURL: "https://www.facebook.com",
-    userID: "gvh5YR",
+    userID: "DdsdWk",
   },
 };
 
 const users = {
-  gvh5YR: { 
-    id: 'gvh5YR', email: 'stevenls1118@msn.com', password: '1' 
+  DdsdWk: { 
+    id: 'DdsdWk', email: 'stevenls1118@msn.com', password: '$2a$10$nK87gSUzu6Xae7lKjXrnXOLOimjY0cm3ER1IpGid2GBWA1GJjvPRy' 
   }
 };
 
@@ -64,11 +64,11 @@ let getUserByEmail = (str) => {
 // Check email and password from users
 let checkForLogin = (email, pass) => {
   for (let i of Object.values(users)) {
-    if (i.email === email && i.password === pass) {
+    if (i.email === email && bcrypt.compareSync(pass, i.password)) {
       return i.id;
     }
-    return false;
   }
+  return false;
 };
 
 // Returns the URLs where the userID is equal to the id of the currently logged-in user
@@ -249,13 +249,15 @@ app.post("/register", (req, res) => {
     let id = generateRandomString();
     let email = req.body.email;
     let password = req.body.password;
+    let salt = bcrypt.genSaltSync(10);
+    let hash = bcrypt.hashSync(password, salt);
     users[id] = {
       "id": id,
       "email": email,
-      "password": password
+      "password": hash
     };
     res.cookie('userID', id);
-    console.log(users);
+    console.log(Object.values(users));
     res.redirect('/urls');
   }
 });
