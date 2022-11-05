@@ -5,23 +5,26 @@ const bodyParser = require('body-parser');
 const port = 8080;
 const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxys";
 
-// const urlDatabase = {
-//   "b2xVn2": "http://www.lighthouselabs.ca",
-//   "9sm5xK": "http://www.google.com"
-// };
-
 const urlDatabase = {
   b6UTxQ: {
     longURL: "https://www.tsn.ca",
-    userID: "aJ48lW",
+    userID: "gvh5YR",
   },
   i3BoGr: {
     longURL: "https://www.google.ca",
-    userID: "aJ48lW",
+    userID: "gvh23s",
+  },
+  aX483J: {
+    longURL: "https://www.facebook.com",
+    userID: "gvh5YR",
   },
 };
 
-const users = {};
+const users = {
+  gvh5YR: { 
+    id: 'gvh5YR', email: 'stevenls1118@msn.com', password: '1' 
+  }
+};
 
 // generate 6 digits string for userID and shortURL
 let generateRandomString = () => {
@@ -47,6 +50,7 @@ let getUserByEmail = (str) => {
   return true;
 };
 
+// helper function to check email and password from users
 let checkForLogin = (email, pass) => {
   for (let i of Object.values(users)) {
     if (i.email === email && i.password === pass) {
@@ -55,6 +59,18 @@ let checkForLogin = (email, pass) => {
     return false;
   }
 }
+
+// returns the URLs where the userID is equal to the id of the currently logged-in user
+let urlsForUser = (id) => {
+  let result = {};
+  for (let i in urlDatabase) {
+    if (id === urlDatabase[i].userID) {
+      result[i] = urlDatabase[i];
+    }
+  }
+  return result;
+};
+
 const app = express();
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({extended: true}));
@@ -77,9 +93,13 @@ app.get('/hello', (req, res) => {
 });
 
 app.get('/urls', (req, res) => {
+  if(!req.cookies.userID) {
+    return res.send('Please login or register!');
+  };
   let userID = req.cookies.userID;
+  let filterUrlDataBase = urlsForUser(userID);
   let templateVars = {
-    urls: urlDatabase,
+    urls: filterUrlDataBase,
     users: users,
     userID: userID
   };
@@ -99,7 +119,13 @@ app.get('/urls/new', (req, res) => {
 });
 
 app.get('/urls/:id', (req, res) => {
+  if (!req.cookies.userID) {
+    return res.send('Please login or register to see this page.');
+  };
   let userID = req.cookies.userID;
+  if (userID !== urlDatabase[req.params.id].userID) {
+    return res.send(`You don't have access to this page.`);
+  }
   const templateVars = {
     id: req.params.id,
     longURL: urlDatabase[req.params.id]["longURL"],
