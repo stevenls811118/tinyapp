@@ -1,10 +1,18 @@
+// Npm packages
+
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
+const bcrypt = require('bcryptjs');
 
+// Configuration
+
+const app = express();
 const port = 8080;
 const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxys";
+
+// Database
 
 const urlDatabase = {
   b6UTxQ: {
@@ -13,7 +21,7 @@ const urlDatabase = {
   },
   i3BoGr: {
     longURL: "https://www.google.ca",
-    userID: "gvh5YR",
+    userID: "gvh5Ys",
   },
   aX483J: {
     longURL: "https://www.facebook.com",
@@ -27,7 +35,9 @@ const users = {
   }
 };
 
-// generate 6 digits string for userID and shortURL
+// Helper functions
+
+// Generate 6 digits string for userID and shortURL
 let generateRandomString = () => {
   let result = '';
   for (let i = 0; i < 6; i++) {
@@ -36,7 +46,7 @@ let generateRandomString = () => {
   return result;
 };
 
-// check for the registration has email enter and it is not exist email
+// Check for the registration has email enter and it is not exist email
 let getUserByEmail = (str) => {
   for (let i of Object.values(users)) {
     if (i.email === str) {
@@ -51,7 +61,7 @@ let getUserByEmail = (str) => {
   return true;
 };
 
-// helper function to check email and password from users
+// Check email and password from users
 let checkForLogin = (email, pass) => {
   for (let i of Object.values(users)) {
     if (i.email === email && i.password === pass) {
@@ -59,9 +69,9 @@ let checkForLogin = (email, pass) => {
     }
     return false;
   }
-}
+};
 
-// returns the URLs where the userID is equal to the id of the currently logged-in user
+// Returns the URLs where the userID is equal to the id of the currently logged-in user
 let urlsForUser = (id) => {
   let result = {};
   for (let i in urlDatabase) {
@@ -72,28 +82,22 @@ let urlsForUser = (id) => {
   return result;
 };
 
-const app = express();
-app.use(cookieParser());
-app.use(bodyParser.urlencoded({extended: true}));
-app.use(morgan('dev'));
+// Middleware
+app.use(cookieParser()); // Help with cookies!
+app.use(bodyParser.urlencoded({extended: true})); // Gather form submission data.
+app.use(morgan('dev')); // Helpful logging, showing method, path, and status codes.
+
+// Template Engine
 app.set('view engine', 'ejs');
 
+// Listener
 app.listen(port, () => {
   console.log(`Tinyapp is listening on port ${port}.`);
 });
 
-app.get('/', (req, res) => {
-  res.send('Hello!');
-});
+// Routes
 
-app.get('/urls.json', (req, res) => {
-  res.json(urlDatabase);
-});
-
-app.get('/hello', (req, res) => {
-  res.send('<html><body>Hello <b>World</b></body></html>\n');
-});
-
+// App index page for urls
 app.get('/urls', (req, res) => {
   if(!req.cookies.userID) {
     return res.send('Please login or register!');
@@ -108,6 +112,7 @@ app.get('/urls', (req, res) => {
   res.render('urls_index', templateVars);
 });
 
+// Post create new url
 app.post("/urls", (req, res) => {
   if(!req.cookies.userID) {
     return res.send('Login first!');
@@ -121,6 +126,7 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${shortURl}`);
 });
 
+// Display create new url page
 app.get('/urls/new', (req, res) => {
   if(!req.cookies.userID) {
     return res.redirect('/login');
@@ -133,13 +139,14 @@ app.get('/urls/new', (req, res) => {
   res.render('urls_new', templateVars);
 });
 
+// Display edit existing short url page 
 app.get('/urls/:id', (req, res) => {
   if (!req.cookies.userID) {
     return res.send('Please login or register to see this page.');
   };
   let userID = req.cookies.userID;
   if (userID !== urlDatabase[req.params.id].userID) {
-    return res.send(`You don't have access to this page.`);
+    return res.send(`You don't have access to this URL page.`);
   }
   const templateVars = {
     id: req.params.id,
@@ -150,6 +157,7 @@ app.get('/urls/:id', (req, res) => {
   res.render('urls_show', templateVars);
 });
 
+// Post edit existing short url request
 app.post('/urls/:id', (req, res) => {
   if (!req.cookies.userID) {
     return res.send('Please login or register to see this page.');
@@ -164,6 +172,7 @@ app.post('/urls/:id', (req, res) => {
   res.redirect('/urls');
 });
 
+// Post delete existing short url request
 app.post('/urls/:id/delete', (req, res) => {
   if (!req.cookies.userID) {
     return res.send('Please login or register to see this page.');
@@ -176,6 +185,7 @@ app.post('/urls/:id/delete', (req, res) => {
   res.redirect('/urls');
 });
 
+// Display short url linked website
 app.get('/u/:id', (req, res) => {
   if (Object.keys(urlDatabase).includes(req.params.id)) {
     let longURL = urlDatabase[req.params.id].longURL;
@@ -184,6 +194,7 @@ app.get('/u/:id', (req, res) => {
   res.send(`This shortened url ${req.params.id} that dose not exist!`);
 });
 
+// Display the login page.
 app.get('/login', (req, res) => {
   if(req.cookies.userID) {
     return res.redirect('/urls');
@@ -197,6 +208,7 @@ app.get('/login', (req, res) => {
   res.render('login', templateVars);
 });
 
+// Post login form request
 app.post('/login', (req, res) => {
   console.log('This is req.body: ', req.body);
   const email = req.body.email;
@@ -208,11 +220,13 @@ app.post('/login', (req, res) => {
   res.redirect(403, '/login');
 });
 
+// Post logout form request
 app.post("/logout", (req, res) => {
   res.clearCookie('userID');
   res.redirect(`/login`);
 });
 
+// Display the register page
 app.get("/register", (req, res) => {
   if(req.cookies.userID) {
     return res.redirect('/urls');
@@ -226,6 +240,7 @@ app.get("/register", (req, res) => {
   res.render('register', templateVars);
 });
 
+// Post the register form request
 app.post("/register", (req, res) => {
   console.log(req.body);
   if (!getUserByEmail(req.body.email)) {

@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/stevenls811118/tinyapp#readme",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.1",
     "bootstrap": "^5.2.2",
     "cookie-parser": "^1.4.6",
