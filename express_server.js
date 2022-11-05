@@ -5,9 +5,20 @@ const bodyParser = require('body-parser');
 const port = 8080;
 const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxys";
 
+// const urlDatabase = {
+//   "b2xVn2": "http://www.lighthouselabs.ca",
+//   "9sm5xK": "http://www.google.com"
+// };
+
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: {
+    longURL: "https://www.tsn.ca",
+    userID: "aJ48lW",
+  },
+  i3BoGr: {
+    longURL: "https://www.google.ca",
+    userID: "aJ48lW",
+  },
 };
 
 const users = {};
@@ -91,7 +102,7 @@ app.get('/urls/:id', (req, res) => {
   let userID = req.cookies.userID;
   const templateVars = {
     id: req.params.id,
-    longURL: urlDatabase[req.params.id],
+    longURL: urlDatabase[req.params.id]["longURL"],
     users: users,
     userID: userID
   };
@@ -104,13 +115,14 @@ app.post("/urls", (req, res) => {
   }
   console.log(req.body);
   let shortURl = generateRandomString();
-  urlDatabase[shortURl] = req.body.longURL;
+  urlDatabase[shortURl] = {};
+  urlDatabase[shortURl].longURL = req.body.longURL;
   res.redirect(`/urls/${shortURl}`);
 });
 
 app.get('/u/:id', (req, res) => {
   if (Object.keys(urlDatabase).includes(req.params.id)) {
-    let longURL = urlDatabase[req.params.id];
+    let longURL = urlDatabase[req.params.id].longURL;
     return res.redirect(longURL);
   }
   res.send(`This shortened url ${req.params.id} that dose not exist!`);
@@ -122,7 +134,7 @@ app.post('/urls/:id/delete', (req, res) => {
 });
 
 app.post('/urls/:id', (req, res) => {
-  urlDatabase[req.params.id] = req.body.longURL;
+  urlDatabase[req.params.id].longURL = req.body.longURL;
   res.redirect('/urls');
 });
 
