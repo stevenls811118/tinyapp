@@ -1,6 +1,7 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
+const morgan = require('morgan');
 
 const port = 8080;
 const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxys";
@@ -12,7 +13,7 @@ const urlDatabase = {
   },
   i3BoGr: {
     longURL: "https://www.google.ca",
-    userID: "gvh23s",
+    userID: "gvh5YR",
   },
   aX483J: {
     longURL: "https://www.facebook.com",
@@ -74,6 +75,7 @@ let urlsForUser = (id) => {
 const app = express();
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(morgan('dev'));
 app.set('view engine', 'ejs');
 
 app.listen(port, () => {
@@ -106,6 +108,19 @@ app.get('/urls', (req, res) => {
   res.render('urls_index', templateVars);
 });
 
+app.post("/urls", (req, res) => {
+  if(!req.cookies.userID) {
+    return res.send('Login first!');
+  }
+  console.log(req.body);
+  let shortURl = generateRandomString();
+  urlDatabase[shortURl] = {};
+  urlDatabase[shortURl].longURL = req.body.longURL;
+  urlDatabase[shortURl].userID = req.cookies.userID;
+  console.log(urlDatabase);
+  res.redirect(`/urls/${shortURl}`);
+});
+
 app.get('/urls/new', (req, res) => {
   if(!req.cookies.userID) {
     return res.redirect('/login');
@@ -135,15 +150,30 @@ app.get('/urls/:id', (req, res) => {
   res.render('urls_show', templateVars);
 });
 
-app.post("/urls", (req, res) => {
-  if(!req.cookies.userID) {
-    return res.send('Login first!');
+app.post('/urls/:id', (req, res) => {
+  if (!req.cookies.userID) {
+    return res.send('Please login or register to see this page.');
+  };
+  let userID = req.cookies.userID;
+  if (userID !== urlDatabase[req.params.id].userID) {
+    return res.send(`You don't have access to this page.`);
   }
-  console.log(req.body);
-  let shortURl = generateRandomString();
-  urlDatabase[shortURl] = {};
-  urlDatabase[shortURl].longURL = req.body.longURL;
-  res.redirect(`/urls/${shortURl}`);
+  urlDatabase[req.params.id].longURL = req.body.longURL;
+  urlDatabase[req.params.id].userID = req.cookies.userID
+  console.log(urlDatabase);
+  res.redirect('/urls');
+});
+
+app.post('/urls/:id/delete', (req, res) => {
+  if (!req.cookies.userID) {
+    return res.send('Please login or register to see this page.');
+  };
+  let userID = req.cookies.userID;
+  if (userID !== urlDatabase[req.params.id].userID) {
+    return res.send(`You don't have access to this page.`);
+  }
+  delete urlDatabase[req.params.id];
+  res.redirect('/urls');
 });
 
 app.get('/u/:id', (req, res) => {
@@ -154,14 +184,17 @@ app.get('/u/:id', (req, res) => {
   res.send(`This shortened url ${req.params.id} that dose not exist!`);
 });
 
-app.post('/urls/:id/delete', (req, res) => {
-  delete urlDatabase[req.params.id];
-  res.redirect('/urls');
-});
-
-app.post('/urls/:id', (req, res) => {
-  urlDatabase[req.params.id].longURL = req.body.longURL;
-  res.redirect('/urls');
+app.get('/login', (req, res) => {
+  if(req.cookies.userID) {
+    return res.redirect('/urls');
+  };
+  let userID = req.cookies.userID;
+  let templateVars = {
+    urls: urlDatabase,
+    users: users,
+    userID: userID
+  };
+  res.render('login', templateVars);
 });
 
 app.post('/login', (req, res) => {
@@ -212,15 +245,3 @@ app.post("/register", (req, res) => {
   }
 });
 
-app.get('/login', (req, res) => {
-  if(req.cookies.userID) {
-    return res.redirect('/urls');
-  };
-  let userID = req.cookies.userID;
-  let templateVars = {
-    urls: urlDatabase,
-    users: users,
-    userID: userID
-  };
-  res.render('login', templateVars);
-});
