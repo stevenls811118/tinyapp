@@ -33,7 +33,7 @@
           <% for (let id in urls) { %>
             <tr>
               <td><a href="/u/<%= id %>"><%= id %></a></td>
-              <td><a href="<%= urls[id] %>"><%= urls[id] %></a></td>
+              <td><a><%= urls[id] %></a></td>
               <td><form method="GET" action="/urls/<%= id%>">
                 <button type="submit" style="background-color: dodgerblue; border-radius: 5px"><p6 style="color:#ffffff">Edit</p6></button>
               </form></td>

@@ -109,8 +109,11 @@ app.post("/urls", (req, res) => {
 });
 
 app.get('/u/:id', (req, res) => {
-  let longURL = urlDatabase[req.params.id];
-  res.redirect(longURL);
+  if (Object.keys(urlDatabase).includes(req.params.id)) {
+    let longURL = urlDatabase[req.params.id];
+    return res.redirect(longURL);
+  }
+  res.send(`This shortened url ${req.params.id} that dose not exist!`);
 });
 
 app.post('/urls/:id/delete', (req, res) => {
