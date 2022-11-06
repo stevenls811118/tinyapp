@@ -1,6 +1,11 @@
+// Npm package
+
 const bcrypt = require('bcryptjs');
 
+// Constant
+
 const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxys";
+
 // Helper functions
 
 // Generate 6 digits string for userID and shortURL

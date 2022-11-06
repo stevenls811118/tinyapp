@@ -29,8 +29,8 @@ const urlDatabase = {
 };
 
 const users = {
-  DdsdWk: { 
-    id: 'DdsdWk', email: 'stevenls1118@msn.com', password: '$2a$10$nK87gSUzu6Xae7lKjXrnXOLOimjY0cm3ER1IpGid2GBWA1GJjvPRy' 
+  DdsdWk: {
+    id: 'DdsdWk', email: 'stevenls1118@msn.com', password: '$2a$10$nK87gSUzu6Xae7lKjXrnXOLOimjY0cm3ER1IpGid2GBWA1GJjvPRy'
   }
 };
 
@@ -45,7 +45,7 @@ app.use(morgan('dev')); // Helpful logging, showing method, path, and status cod
 app.use(cookieSession({ // Use cookieSession to encrypt cookie!
   name: 'session',
   keys: ['my secret key'],
-}))
+}));
 
 // Template Engine
 
@@ -61,9 +61,9 @@ app.listen(port, () => {
 
 // App index page for urls
 app.get('/urls', (req, res) => {
-  if(!req.session.userID) {
+  if (!req.session.userID) {
     return res.send('Please login or register!');
-  };
+  }
   let userID = req.session.userID;
   let filterUrlDataBase = urlsForUser(userID, urlDatabase);
   let templateVars = {
@@ -76,7 +76,7 @@ app.get('/urls', (req, res) => {
 
 // Post create new url
 app.post("/urls", (req, res) => {
-  if(!req.session.userID) {
+  if (!req.session.userID) {
     return res.send('Login first!');
   }
   console.log(req.body);
@@ -90,9 +90,9 @@ app.post("/urls", (req, res) => {
 
 // Display create new url page
 app.get('/urls/new', (req, res) => {
-  if(!req.session.userID) {
+  if (!req.session.userID) {
     return res.redirect('/login');
-  };
+  }
   let userID = req.session.userID;
   const templateVars = {
     users: users,
@@ -101,11 +101,11 @@ app.get('/urls/new', (req, res) => {
   res.render('urls_new', templateVars);
 });
 
-// Display edit existing short url page 
+// Display edit existing short url page
 app.get('/urls/:id', (req, res) => {
   if (!req.session.userID) {
     return res.send('Please login or register to see this page.');
-  };
+  }
   let userID = req.session.userID;
   if (userID !== urlDatabase[req.params.id].userID) {
     return res.send(`You don't have access to this URL page.`);
@@ -123,13 +123,13 @@ app.get('/urls/:id', (req, res) => {
 app.post('/urls/:id', (req, res) => {
   if (!req.session.userID) {
     return res.send('Please login or register to see this page.');
-  };
+  }
   let userID = req.session.userID;
   if (userID !== urlDatabase[req.params.id].userID) {
     return res.send(`You don't have access to this page.`);
   }
   urlDatabase[req.params.id].longURL = req.body.longURL;
-  urlDatabase[req.params.id].userID = req.session.userID
+  urlDatabase[req.params.id].userID = req.session.userID;
   console.log(urlDatabase);
   res.redirect('/urls');
 });
@@ -138,7 +138,7 @@ app.post('/urls/:id', (req, res) => {
 app.post('/urls/:id/delete', (req, res) => {
   if (!req.session.userID) {
     return res.send('Please login or register to see this page.');
-  };
+  }
   let userID = req.session.userID;
   if (userID !== urlDatabase[req.params.id].userID) {
     return res.send(`You don't have access to this page.`);
@@ -158,9 +158,9 @@ app.get('/u/:id', (req, res) => {
 
 // Display the login page.
 app.get('/login', (req, res) => {
-  if(req.session.userID) {
+  if (req.session.userID) {
     return res.redirect('/urls');
-  };
+  }
   let userID = req.session.userID;
   let templateVars = {
     urls: urlDatabase,
@@ -175,10 +175,10 @@ app.post('/login', (req, res) => {
   console.log('This is req.body: ', req.body);
   const email = req.body.email;
   const pass = req.body.password;
-  if(checkForLogin(email, pass, users)) {
+  if (checkForLogin(email, pass, users)) {
     req.session.userID = checkForLogin(email, pass, users);
     return res.redirect('/urls');
-  };
+  }
   res.redirect(403, '/login');
 });
 
@@ -190,9 +190,9 @@ app.post("/logout", (req, res) => {
 
 // Display the register page
 app.get("/register", (req, res) => {
-  if(req.session.userID) {
+  if (req.session.userID) {
     return res.redirect('/urls');
-  };
+  }
   let userID = req.session.userID;
   let templateVars = {
     urls: urlDatabase,
@@ -206,9 +206,9 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
   console.log(req.body);
   if (req.body.email === '') {
-    console.log('Please enter email to register')
+    console.log('Please enter email to register');
     return res.redirect(400, '/register');
-  } else if (getUserByEmail(req.body.email, users)){
+  } else if (getUserByEmail(req.body.email, users)) {
     console.log('This email is already register');
     return res.redirect(400,'/register');
   } else {
