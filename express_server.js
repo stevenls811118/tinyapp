@@ -10,7 +10,6 @@ const cookieSession = require('cookie-session');
 
 const app = express();
 const port = 8080;
-const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxys";
 
 // Database
 
@@ -37,50 +36,7 @@ const users = {
 
 // Helper functions
 
-// Generate 6 digits string for userID and shortURL
-let generateRandomString = () => {
-  let result = '';
-  for (let i = 0; i < 6; i++) {
-    result += chars[Math.floor(Math.random() * chars.length)];
-  }
-  return result;
-};
-
-// Check for the registration has email enter and it is not exist email
-let getUserByEmail = (str) => {
-  for (let i of Object.values(users)) {
-    if (i.email === str) {
-      console.log('email is already exist');
-      return false;
-    }
-  }
-  if (str === '') {
-    console.log("please enter email");
-    return false;
-  }
-  return true;
-};
-
-// Check email and password from users
-let checkForLogin = (email, pass) => {
-  for (let i of Object.values(users)) {
-    if (i.email === email && bcrypt.compareSync(pass, i.password)) {
-      return i.id;
-    }
-  }
-  return false;
-};
-
-// Returns the URLs where the userID is equal to the id of the currently logged-in user
-let urlsForUser = (id) => {
-  let result = {};
-  for (let i in urlDatabase) {
-    if (id === urlDatabase[i].userID) {
-      result[i] = urlDatabase[i];
-    }
-  }
-  return result;
-};
+const {generateRandomString, getUserByEmail, checkForLogin, urlsForUser} = require('./helpers');
 
 // Middleware
 
@@ -109,7 +65,7 @@ app.get('/urls', (req, res) => {
     return res.send('Please login or register!');
   };
   let userID = req.session.userID;
-  let filterUrlDataBase = urlsForUser(userID);
+  let filterUrlDataBase = urlsForUser(userID, urlDatabase);
   let templateVars = {
     urls: filterUrlDataBase,
     users: users,
@@ -219,8 +175,8 @@ app.post('/login', (req, res) => {
   console.log('This is req.body: ', req.body);
   const email = req.body.email;
   const pass = req.body.password;
-  if(checkForLogin(email, pass)) {
-    req.session.userID = checkForLogin(email, pass);
+  if(checkForLogin(email, pass, users)) {
+    req.session.userID = checkForLogin(email, pass, users);
     return res.redirect('/urls');
   };
   res.redirect(403, '/login');
@@ -249,8 +205,12 @@ app.get("/register", (req, res) => {
 // Post the register form request
 app.post("/register", (req, res) => {
   console.log(req.body);
-  if (!getUserByEmail(req.body.email)) {
-    res.redirect(400,'/register');
+  if (req.body.email === '') {
+    console.log('Please enter email to register')
+    return res.redirect(400, '/register');
+  } else if (getUserByEmail(req.body.email, users)){
+    console.log('This email is already register');
+    return res.redirect(400,'/register');
   } else {
     let id = generateRandomString();
     let email = req.body.email;
