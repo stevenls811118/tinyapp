@@ -65,6 +65,7 @@ app.get('/urls', (req, res) => {
     users: users,
     userID: userID
   };
+  console.log(urlDatabase);
   res.render('urls_index', templateVars);
 });
 
@@ -122,7 +123,6 @@ app.post('/urls/:id', (req, res) => {
   }
   urlDatabase[req.params.id].longURL = req.body.longURL;
   urlDatabase[req.params.id].userID = req.session.userID;
-  console.log(urlDatabase);
   res.redirect('/urls');
 });
 
