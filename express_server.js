@@ -73,12 +73,10 @@ app.post("/urls", (req, res) => {
   if (!req.session.userID) {
     return res.send('Login first!');
   }
-  console.log(req.body);
   let shortURl = generateRandomString();
   urlDatabase[shortURl] = {};
   urlDatabase[shortURl].longURL = req.body.longURL;
   urlDatabase[shortURl].userID = req.session.userID;
-  console.log(urlDatabase);
   res.redirect(`/urls/${shortURl}`);
 });
 
@@ -124,7 +122,6 @@ app.post('/urls/:id', (req, res) => {
   }
   urlDatabase[req.params.id].longURL = req.body.longURL;
   urlDatabase[req.params.id].userID = req.session.userID;
-  console.log(urlDatabase);
   res.redirect('/urls');
 });
 
@@ -166,7 +163,6 @@ app.get('/login', (req, res) => {
 
 // Post login form request
 app.post('/login', (req, res) => {
-  console.log('This is req.body: ', req.body);
   const email = req.body.email;
   const pass = req.body.password;
   if (checkForLogin(email, pass, users)) {
@@ -198,7 +194,6 @@ app.get("/register", (req, res) => {
 
 // Post the register form request
 app.post("/register", (req, res) => {
-  console.log(req.body);
  if (getUserByEmail(req.body.email, users)) {
     console.log('This email is already register');
     return res.redirect(400,'/register');
@@ -214,7 +209,6 @@ app.post("/register", (req, res) => {
       "password": hash
     };
     req.session.userID = id;
-    console.log(users);
     res.redirect('/urls');
   }
 });
