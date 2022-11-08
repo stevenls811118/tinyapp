@@ -51,12 +51,6 @@ app.use(cookieSession({ // Use cookieSession to encrypt cookie!
 
 app.set('view engine', 'ejs');
 
-// Listener
-
-app.listen(port, () => {
-  console.log(`Tinyapp is listening on port ${port}.`);
-});
-
 // Routes
 
 // App index page for urls
@@ -205,10 +199,7 @@ app.get("/register", (req, res) => {
 // Post the register form request
 app.post("/register", (req, res) => {
   console.log(req.body);
-  if (req.body.email === '') {
-    console.log('Please enter email to register');
-    return res.redirect(400, '/register');
-  } else if (getUserByEmail(req.body.email, users)) {
+ if (getUserByEmail(req.body.email, users)) {
     console.log('This email is already register');
     return res.redirect(400,'/register');
   } else {
@@ -228,3 +219,8 @@ app.post("/register", (req, res) => {
   }
 });
 
+// Listener
+
+app.listen(port, () => {
+  console.log(`Tinyapp is listening on port ${port}.`);
+});
