@@ -122,6 +122,7 @@ app.post('/urls/:id', (req, res) => {
   }
   urlDatabase[req.params.id].longURL = req.body.longURL;
   urlDatabase[req.params.id].userID = req.session.userID;
+  console.log(urlDatabase);
   res.redirect('/urls');
 });
 
@@ -209,6 +210,7 @@ app.post("/register", (req, res) => {
       "password": hash
     };
     req.session.userID = id;
+    console.log(users);
     res.redirect('/urls');
   }
 });
