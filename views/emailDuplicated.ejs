@@ -19,19 +19,9 @@
   <body>
     <%- include('partials/_header.ejs') %>
     <main style="margin: 1em;">
-      <h1>Create Account</h1>
-      <form method="POST" action="/register">
-        <label for="email">Email address: </label>
-        <br>
-        <input id="email" type="email" name="email" placeholder="Enter email" style="width: 300px">
-        <br>
-        <label for="password" style="margin-top: 7px">Password: </label>
-        <br>
-        <input id="password" type="password" name="password" placeholder="Password" style="width: 300px">
-        <br>
-        <br>
+      <h6>This email has been registered.</h6>
+      <form method="GET" action="/register">
         <button type="submit" class="btn btn-primary">Register</button>
       </form>
-    </main>
   </body>
 </html>

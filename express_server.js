@@ -56,7 +56,7 @@ app.set('view engine', 'ejs');
 // App index page for urls
 app.get('/urls', (req, res) => {
   if (!req.session.userID) {
-    return res.send('Please login or register!');
+    return res.status(403).send('Please login or register!');
   }
   let userID = req.session.userID;
   let filterUrlDataBase = urlsForUser(userID, urlDatabase);
@@ -72,7 +72,7 @@ app.get('/urls', (req, res) => {
 // Post create new url
 app.post("/urls", (req, res) => {
   if (!req.session.userID) {
-    return res.send('Login first!');
+    return res.status(403).send('Login first!');
   }
   let shortURl = generateRandomString();
   urlDatabase[shortURl] = {};
@@ -97,11 +97,11 @@ app.get('/urls/new', (req, res) => {
 // Display edit existing short url page
 app.get('/urls/:id', (req, res) => {
   if (!req.session.userID) {
-    return res.send('Please login or register to see this page.');
+    return res.status(403).send('Please login or register to see this page.');
   }
   let userID = req.session.userID;
   if (userID !== urlDatabase[req.params.id].userID) {
-    return res.send(`You don't have access to this URL page.`);
+    return res.status(403).send(`You don't have access to this URL page.`);
   }
   const templateVars = {
     id: req.params.id,
@@ -115,11 +115,11 @@ app.get('/urls/:id', (req, res) => {
 // Post edit existing short url request
 app.post('/urls/:id', (req, res) => {
   if (!req.session.userID) {
-    return res.send('Please login or register to see this page.');
+    return res.status(403).send('Please login or register to see this page.');
   }
   let userID = req.session.userID;
   if (userID !== urlDatabase[req.params.id].userID) {
-    return res.send(`You don't have access to this page.`);
+    return res.status(403).send(`You don't have access to this page.`);
   }
   urlDatabase[req.params.id].longURL = req.body.longURL;
   urlDatabase[req.params.id].userID = req.session.userID;
@@ -129,11 +129,11 @@ app.post('/urls/:id', (req, res) => {
 // Post delete existing short url request
 app.post('/urls/:id/delete', (req, res) => {
   if (!req.session.userID) {
-    return res.send('Please login or register to see this page.');
+    return res.status(403).send('Please login or register to see this page.');
   }
   let userID = req.session.userID;
   if (userID !== urlDatabase[req.params.id].userID) {
-    return res.send(`You don't have access to this page.`);
+    return res.status(403).send(`You don't have access to this page.`);
   }
   delete urlDatabase[req.params.id];
   res.redirect('/urls');
@@ -145,7 +145,7 @@ app.get('/u/:id', (req, res) => {
     let longURL = urlDatabase[req.params.id].longURL;
     return res.redirect(longURL);
   }
-  res.send(`This shortened url ${req.params.id} that dose not exist!`);
+  res.status(403).send(`This shortened url ${req.params.id} that dose not exist!`);
 });
 
 // Display the login page.
@@ -170,7 +170,21 @@ app.post('/login', (req, res) => {
     req.session.userID = checkForLogin(email, pass, users);
     return res.redirect('/urls');
   }
-  res.redirect(403, '/login');
+  res.redirect('/login_error');
+});
+
+// Login error page
+app.get('/login_error', (req, res) => {
+  if (req.session.userID) {
+    return res.redirect('/urls');
+  }
+  let userID = req.session.userID;
+  let templateVars = {
+    urls: urlDatabase,
+    users: users,
+    userID: userID
+  };
+  res.render('login_error', templateVars);
 });
 
 // Post logout form request
@@ -193,11 +207,40 @@ app.get("/register", (req, res) => {
   res.render('register', templateVars);
 });
 
+// Display the register error for missing email or password
+app.get("/register_error1", (req, res) => {
+  if (req.session.userID) {
+    return res.redirect('/urls');
+  }
+  let userID = req.session.userID;
+  let templateVars = {
+    urls: urlDatabase,
+    users: users,
+    userID: userID
+  };
+  res.render('missingEmailOrPass', templateVars);
+});
+
+// Display the register error for duplicated email
+app.get("/register_error2", (req, res) => {
+  if (req.session.userID) {
+    return res.redirect('/urls');
+  }
+  let userID = req.session.userID;
+  let templateVars = {
+    urls: urlDatabase,
+    users: users,
+    userID: userID
+  };
+  res.render('emailDuplicated', templateVars);
+});
+
 // Post the register form request
 app.post("/register", (req, res) => {
- if (getUserByEmail(req.body.email, users)) {
-    console.log('This email is already register');
-    return res.redirect(400,'/register');
+  if (req.body.email === '' || req.body.password === '') {
+    return res.redirect('/register_error1');
+  } else if (getUserByEmail(req.body.email, users)) {
+    return res.redirect('/register_error2');
   } else {
     let id = generateRandomString();
     let email = req.body.email;
