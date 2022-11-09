@@ -231,7 +231,7 @@ app.get("/register_error2", (req, res) => {
     users: users,
     userID: userID
   };
-  res.render('emailDuplicated', templateVars);
+  res.render('emailAlreadyUsed', templateVars);
 });
 
 // Post the register form request
