@@ -65,7 +65,6 @@ app.get('/urls', (req, res) => {
     users: users,
     userID: userID
   };
-  console.log(urlDatabase);
   res.render('urls_index', templateVars);
 });
 
@@ -253,7 +252,6 @@ app.post("/register", (req, res) => {
       "password": hash
     };
     req.session.userID = id;
-    console.log(users);
     res.redirect('/urls');
   }
 });
